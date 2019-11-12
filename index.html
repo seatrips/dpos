@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">   
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NODE STATUS</title>
+<style type="text/css">
+  html {
+    margin: auto;
+  }
+  body { 
+  	padding: 20px;
+  	font: 1em Helvetica, sans-serif; 
+  	text-align: center; 
+  	color: #333; }
+  h1 { width: 100%; text-align:center; font-size: 2em; }
+  h2 { font-size: 25px; }
+  a { 
+  	color: #dc8100; 
+  	text-decoration: none; }
+  a:hover { 
+  	color: #333; 
+  	text-decoration: none; }
+  .buttons { 
+  	width: 100%; 
+  	max-width: 600px; 
+  	text-align: center; 
+  	font-size: 20px; 
+  	width: 650px; 
+  	margin: 20px auto; }
+  button {  
+  	background-color: #4CAF50; /* Green */
+	border: none;
+	color: white;
+	padding: 15px 32px;
+	margin: 4px;
+	text-align: center;
+	text-decoration: none;
+	font-size: 1.2em;
+	cursor: pointer;
+  }
+  button:hover { background-color: royalblue; }
+  .result { 
+	width: 100%; 
+  	max-width: 600px;
+  	min-height: 300px; 
+  	margin: 20px auto; 
+  	text-align: left; }
+  .node { 
+  	display: inline-block; 
+  	width: 280px; 
+  	margin: 10px; }
+  p.clear { clear: both; }
+  
+  @media (min-width: 320px) and (max-width: 480px) {
+  
+   .buttons { 
+	  	width: 100%; 
+	  	max-width: 600px; 
+	  	text-align: center; 
+	  	font-size: 20px;
+	  	margin: 10px auto; }
+  	button {  
+	  	background-color: #4CAF50; /* Green */
+		border: none;
+		color: white;
+		padding: 15px 32px;
+		text-align: center;
+		text-decoration: none;
+		font-size: 1.2em;
+		display: block;
+		width: 280px;
+		height: 50px;
+		margin: 4px auto; }
+	.result { 
+		width: 100%;
+	  	min-height: 160px; 
+	  	padding: 20px auto; 
+	  	text-align: left; }
+  
+  }
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+<body>
+
+<h1>NODE STATUS</h1>
+<div class="buttons">
+	<!-- Just copy the line below if you want to check more nodes. 
+		 Don't forget to adjust the URL in the id field though ;-) -->
+	<button id="http://core1.rise.vision:5555">Core 1</button>
+	<button id="http://core2.rise.vision:5555">Core 2</button>
+	<button id="http://core3.rise.vision:5555">Core 3</button>
+	<button id="http://core4.rise.vision:5555">Core 4</button>
+	<button id="http://core5.rise.vision:5555">Core 5</button>
+</div>
+
+<div class="result"></div>
+
+<p class="clear"></p>
+
+<hr style="width:50%; margin: 20px auto;">
+
+<div class="footer">
+	<p>
+		This page is part of Git repository <a href="https://github.com/crypt0jan/dpos-node-status">github.com/crypt0jan/node-status</a>
+	</p>
+	<p>
+		<b>v2.0</b>
+	</p>
+	<p>
+		TODO's:<br>
+		Include Network Height<br>
+		Include synced/not synced status<br>
+		Include connected Peers count<br>
+	</p>
+</div>
+
+<script>
+$(document).ready(function(){
+  $("button").click(function(){
+  	$(".result").html('Loading...');
+    var url = this.id
+    var x;
+    var y;
+	var status, version;
+	$.when(
+	    $.getJSON("https://cors-anywhere.herokuapp.com/" + url + "/api/loader/status/sync", function(data) {
+	        status = data;
+	    }),
+	    $.getJSON("https://cors-anywhere.herokuapp.com/" + url + "/api/peers/version", function(data) {
+	        version = data;
+	    })
+	).then(function() {
+	    if (status) {
+	        x = `<div class="node">
+				<h2>${url.replace(/(^\w+:|^)\/\//, '', this.id)}</h2>
+		  		<b>Height:</b> ${status.height}<br>
+      			<b>Consensus:</b> ${status.consensus}<br>`;
+	    }
+	    else {
+	    	x = "Something went wrong whilst retrieving the node status.";
+	    }
+	    if (version) {
+	        y = `	<b>Version:</b> ${version.version}<br>
+	         </div>`;
+	    }
+	    else {
+	        y = "Something went wrong whilst retrieving the node version.";
+	    }
+	    $(".result").html(x+y);
+	    // Change this line into the one below if you want to show multiple results at the same time:
+	    // $(".result").append(x+y);
+	});
+  });
+});
+</script>
+
+</body>
+</html>
